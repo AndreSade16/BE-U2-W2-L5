@@ -29,11 +29,14 @@ public class Employee {
     private String surname;
     @Column(nullable = false, unique = true)
     private String email;
+    @Column(nullable = false, name = "profile_pic_url")
+    private String profilePicUrl;
 
     public Employee(String username, String name, String surname, String email) {
         this.username = username;
         this.name = name;
         this.surname = surname;
         this.email = email;
+        this.profilePicUrl = "https://ui-avatars.com/api/?name=" + name + "+" + surname;
     }
 }

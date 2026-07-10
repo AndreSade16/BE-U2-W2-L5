@@ -21,7 +21,7 @@ public class Employee {
     @Column(name = "employee_id")
     private UUID employeeId;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String username;
     @Column(nullable = false)
     private String name;

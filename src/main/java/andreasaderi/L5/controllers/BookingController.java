@@ -1,0 +1,14 @@
+package andreasaderi.L5.controllers;
+
+import andreasaderi.L5.services.BookingService;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class BookingController {
+
+    private final BookingService bookingService;
+
+    public BookingController(BookingService bookingService) {
+        this.bookingService = bookingService;
+    }
+}

@@ -3,10 +3,12 @@ package andreasaderi.L5.exceptions;
 
 import andreasaderi.L5.payloads.ErrorsDTO;
 import andreasaderi.L5.payloads.ErrorsWithListDTO;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.time.LocalDateTime;
 
@@ -28,6 +30,24 @@ public class ErrorsHandler {
     @ExceptionHandler(EmailAlreadyInUseException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorsDTO handleEmailAlreadyInUse(EmailAlreadyInUseException exception) {
+        return new ErrorsDTO(exception.getMessage(), LocalDateTime.now());
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorsDTO handleDataIntegrityViolation(DataIntegrityViolationException exception) {
+        return new ErrorsDTO(exception.getMessage(), LocalDateTime.now());
+    }
+
+    @ExceptionHandler(TripAlreadyExistsException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorsDTO handleTripAlreadyExists(TripAlreadyExistsException exception) {
+        return new ErrorsDTO(exception.getMessage(), LocalDateTime.now());
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorsDTO handleTypeMismatch(MethodArgumentTypeMismatchException exception) {
         return new ErrorsDTO(exception.getMessage(), LocalDateTime.now());
     }
 

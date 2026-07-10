@@ -12,6 +12,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -43,5 +44,30 @@ public class EmployeeService {
 
     public Employee findById(UUID employeeId) {
         return employeeRepository.findById(employeeId).orElseThrow(() -> new NotFoundException(employeeId));
+    }
+
+    public Employee findByIdAndUpdate(UUID employeeId, EmployeeDTO body) {
+        Employee found = findById(employeeId);
+        if (!found.getEmail().equals(body.email())) {
+            if (employeeRepository.existsByEmail(body.email())) throw new EmailAlreadyInUseException(body.email());
+        }
+        if (employeeRepository.existsByUsername(body.username()))
+            throw new UsernameAlreadyInUseException(body.username());
+
+        if (Objects.equals(found.getProfilePicUrl(), "https://ui-avatars.com/api/?name=" + found.getName() + "+" + found.getSurname()) && (!Objects.equals(found.getName(), body.name()) || !Objects.equals(found.getSurname(), body.surname()))) {
+            found.setProfilePicUrl("https://ui-avatars.com/api/?name=" + body.name() + "+" + body.surname());
+        }
+
+        found.setUsername(body.username());
+        found.setName(body.name());
+        found.setSurname(body.surname());
+        found.setEmail(body.email());
+
+        return employeeRepository.save(found);
+    }
+
+    public void findByIdAndDelete(UUID employeeId) {
+        Employee found = findById(employeeId);
+        employeeRepository.delete(found);
     }
 }

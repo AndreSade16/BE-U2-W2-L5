@@ -46,4 +46,15 @@ public class EmployeeController {
         return employeeService.findById(employeeId);
     }
 
+    @PutMapping("/{employeeId}")
+    public Employee findByIdAndUpdate(@PathVariable UUID employeeId, @RequestBody @Validated EmployeeDTO body, BindingResult validationResult) {
+        return employeeService.findByIdAndUpdate(employeeId, body);
+    }
+
+    @DeleteMapping("/{employeeId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void findByIdAndDelete(@PathVariable UUID employeeId) {
+        employeeService.findByIdAndDelete(employeeId);
+    }
+
 }

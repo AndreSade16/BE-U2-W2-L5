@@ -4,12 +4,16 @@ import andreasaderi.L5.entities.Booking;
 import andreasaderi.L5.entities.Employee;
 import andreasaderi.L5.entities.Trip;
 import andreasaderi.L5.exceptions.EmployeeAlreadyHasBookingForThisDateException;
+import andreasaderi.L5.exceptions.NotFoundException;
 import andreasaderi.L5.payloads.BookingDTO;
 import andreasaderi.L5.repositories.BookingRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
+import java.util.UUID;
 
 @Service
 public class BookingService {
@@ -41,5 +45,33 @@ public class BookingService {
 
         return bookingRepository.save(new Booking(trip, employee, body.notes()));
 
+    }
+
+    public Booking findById(UUID bookingId) {
+        return bookingRepository.findById(bookingId).orElseThrow(() -> new NotFoundException(bookingId));
+    }
+
+    public Booking findByIdAndUpdate(UUID bookingId, BookingDTO body) {
+        Booking found = findById(bookingId);
+        Trip trip = tripService.findById(body.tripId());
+        Employee employee = employeeService.findById(body.employeeId());
+
+        if (!body.tripId().equals(trip.getTripId())) {
+            if (bookingRepository.existsByEmployeeEmployeeIdAndTripDate(body.employeeId(), trip.getDate()))
+                throw new EmployeeAlreadyHasBookingForThisDateException(body.employeeId(), trip.getDate());
+        }
+
+
+        found.setEmployee(employee);
+        found.setTrip(trip);
+        found.setNotes(body.notes());
+        found.setRequestDate(LocalDate.now());
+
+        return bookingRepository.save(found);
+    }
+
+    public void findByIdAndDelete(UUID bookingId) {
+        Booking found = findById(bookingId);
+        bookingRepository.delete(found);
     }
 }

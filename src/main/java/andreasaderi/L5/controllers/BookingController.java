@@ -12,6 +12,8 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/bookings")
 public class BookingController {
@@ -37,5 +39,23 @@ public class BookingController {
         return new BookingResponseDTO(saved.getBookingId());
     }
 
+    @GetMapping("/{bookingId}")
+    public Booking findById(@PathVariable UUID bookingId) {
+        return bookingService.findById(bookingId);
+    }
+
+    @PutMapping("/{bookingId}")
+    public Booking findByIdAndUpdate(@PathVariable UUID bookingId, @RequestBody @Validated BookingDTO body, BindingResult validationResult) {
+        if (validationResult.hasErrors()) {
+            throw new ValidationException(validationResult.getFieldErrors().stream().map(DefaultMessageSourceResolvable::getDefaultMessage).toList());
+        }
+        return bookingService.findByIdAndUpdate(bookingId, body);
+    }
+
+    @DeleteMapping("/{bookingId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void findByIdAndDelete(@PathVariable UUID bookingId) {
+        bookingService.findByIdAndDelete(bookingId);
+    }
 
 }

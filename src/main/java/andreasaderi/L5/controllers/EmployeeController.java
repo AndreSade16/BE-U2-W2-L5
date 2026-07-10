@@ -48,6 +48,9 @@ public class EmployeeController {
 
     @PutMapping("/{employeeId}")
     public Employee findByIdAndUpdate(@PathVariable UUID employeeId, @RequestBody @Validated EmployeeDTO body, BindingResult validationResult) {
+        if (validationResult.hasErrors()) {
+            throw new ValidationException(validationResult.getFieldErrors().stream().map(DefaultMessageSourceResolvable::getDefaultMessage).toList());
+        }
         return employeeService.findByIdAndUpdate(employeeId, body);
     }
 

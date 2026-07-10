@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.time.LocalDateTime;
 
@@ -42,6 +43,12 @@ public class ErrorsHandler {
     @ExceptionHandler(TripAlreadyExistsException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorsDTO handleTripAlreadyExists(TripAlreadyExistsException exception) {
+        return new ErrorsDTO(exception.getMessage(), LocalDateTime.now());
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorsDTO handleNoResourceFound(NoResourceFoundException exception) {
         return new ErrorsDTO(exception.getMessage(), LocalDateTime.now());
     }
 

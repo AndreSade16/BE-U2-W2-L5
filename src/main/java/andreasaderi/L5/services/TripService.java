@@ -1,13 +1,17 @@
 package andreasaderi.L5.services;
 
 import andreasaderi.L5.entities.Trip;
+import andreasaderi.L5.exceptions.NotFoundException;
 import andreasaderi.L5.exceptions.TripAlreadyExistsException;
 import andreasaderi.L5.payloads.TripDTO;
+import andreasaderi.L5.payloads.TripUpdateDTO;
 import andreasaderi.L5.repositories.TripRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.util.UUID;
 
 @Service
 public class TripService {
@@ -32,4 +36,26 @@ public class TripService {
         Trip newTrip = new Trip(body.destination(), body.date(), "In programma");
         return tripRepository.save(newTrip);
     }
+
+    public Trip findById(UUID tripId) {
+        return tripRepository.findById(tripId).orElseThrow(() -> new NotFoundException(tripId));
+    }
+
+    public Trip findByIdAndUpdate(UUID tripId, TripUpdateDTO body) {
+        if (tripRepository.existsByDestinationIgnoreCaseAndDate(body.destination(), body.date()))
+            throw new TripAlreadyExistsException(body.destination(), body.date());
+        Trip found = findById(tripId);
+
+        found.setDestination(body.destination());
+        found.setDate(body.date());
+        found.setState(body.state());
+
+        return tripRepository.save(found);
+    }
+
+    public void findByIdAndDelete(UUID tripId) {
+        Trip found = findById(tripId);
+        tripRepository.delete(found);
+    }
+
 }

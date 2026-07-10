@@ -74,4 +74,5 @@ public class BookingService {
         Booking found = findById(bookingId);
         bookingRepository.delete(found);
     }
+
 }

@@ -2,16 +2,21 @@ package andreasaderi.L5.services;
 
 import andreasaderi.L5.entities.Employee;
 import andreasaderi.L5.exceptions.EmailAlreadyInUseException;
+import andreasaderi.L5.exceptions.FileNotSupportedException;
 import andreasaderi.L5.exceptions.NotFoundException;
 import andreasaderi.L5.exceptions.UsernameAlreadyInUseException;
 import andreasaderi.L5.payloads.EmployeeDTO;
 import andreasaderi.L5.repositories.EmployeeRepository;
 import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -69,5 +74,25 @@ public class EmployeeService {
     public void findByIdAndDelete(UUID employeeId) {
         Employee found = findById(employeeId);
         employeeRepository.delete(found);
+    }
+
+    public Employee updateProfilePic(UUID employeeId, MultipartFile file) {
+        if (file.getSize() > 10485760) throw new FileNotSupportedException("File's size can't be more than 10MB");
+        if (!(Objects.equals(file.getContentType(), "image/jpeg") || Objects.equals(file.getContentType(), "image/png")))
+            throw new FileNotSupportedException("Only jpeg or png images allowed");
+        Employee employee = findById(employeeId);
+
+        try {
+            Map result = fileUploader.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
+            String url = (String) result.get("secure_url");
+
+            employee.setProfilePicUrl(url);
+            employeeRepository.save(employee);
+
+            return employee;
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

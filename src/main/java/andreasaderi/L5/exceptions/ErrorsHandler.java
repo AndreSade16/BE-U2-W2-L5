@@ -58,6 +58,12 @@ public class ErrorsHandler {
         return new ErrorsDTO(exception.getMessage(), LocalDateTime.now());
     }
 
+    @ExceptionHandler(FileNotSupportedException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorsDTO handleFileNotSupported(FileNotSupportedException exception) {
+        return new ErrorsDTO(exception.getMessage(), LocalDateTime.now());
+    }
+
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorsDTO handleTypeMismatch(MethodArgumentTypeMismatchException exception) {

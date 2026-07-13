@@ -16,5 +16,10 @@ public record EmployeeDTO(
         String surname,
         @NotBlank(message = "Email field can't be blank or null.")
         @Email(message = "Email field must be filled with a correct email address.")
-        String email) {
+        String email,
+        @NotBlank(message = "Password field can't be blank or null.")
+        @Size(min = 8, message = "Password field must be at least 8 characters long.")
+        String password
+
+) {
 }

@@ -46,6 +46,12 @@ public class ErrorsHandler {
         return new ErrorsDTO(exception.getMessage(), LocalDateTime.now());
     }
 
+    @ExceptionHandler(UnauthorizedException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ErrorsDTO unauthorized(UnauthorizedException exception) {
+        return new ErrorsDTO(exception.getMessage(), LocalDateTime.now());
+    }
+
     @ExceptionHandler(NoResourceFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorsDTO handleNoResourceFound(NoResourceFoundException exception) {

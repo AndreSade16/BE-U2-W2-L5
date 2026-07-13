@@ -1,10 +1,7 @@
 package andreasaderi.L5.services;
 
 import andreasaderi.L5.entities.Employee;
-import andreasaderi.L5.exceptions.EmailAlreadyInUseException;
-import andreasaderi.L5.exceptions.FileNotSupportedException;
-import andreasaderi.L5.exceptions.NotFoundException;
-import andreasaderi.L5.exceptions.UsernameAlreadyInUseException;
+import andreasaderi.L5.exceptions.*;
 import andreasaderi.L5.payloads.EmployeeDTO;
 import andreasaderi.L5.repositories.EmployeeRepository;
 import com.cloudinary.Cloudinary;
@@ -43,7 +40,7 @@ public class EmployeeService {
         if (employeeRepository.existsByEmail(body.email())) throw new EmailAlreadyInUseException(body.email());
         if (employeeRepository.existsByUsername(body.username()))
             throw new UsernameAlreadyInUseException(body.username());
-        Employee newEmployee = new Employee(body.username(), body.name(), body.surname(), body.email());
+        Employee newEmployee = new Employee(body.username(), body.name(), body.surname(), body.email(), body.password());
         return employeeRepository.save(newEmployee);
     }
 
@@ -94,5 +91,9 @@ public class EmployeeService {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public Employee findByEmail(String email) {
+        return employeeRepository.findByEmail(email).orElseThrow(() -> new UnauthorizedException("Wrong email or password"));
     }
 }

@@ -5,6 +5,7 @@ import andreasaderi.L5.entities.Employee;
 import andreasaderi.L5.exceptions.ValidationException;
 import andreasaderi.L5.payloads.BookingDTO;
 import andreasaderi.L5.payloads.BookingResponseDTO;
+import andreasaderi.L5.payloads.BookingSearchDTO;
 import andreasaderi.L5.services.BookingService;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.data.domain.Page;
@@ -40,11 +41,11 @@ public class BookingController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public BookingResponseDTO save(@RequestBody @Validated BookingDTO body, BindingResult validationResult) {
+    public BookingResponseDTO save(@AuthenticationPrincipal Employee employee, @RequestBody @Validated BookingDTO body, BindingResult validationResult) {
         if (validationResult.hasErrors()) {
             throw new ValidationException(validationResult.getFieldErrors().stream().map(DefaultMessageSourceResolvable::getDefaultMessage).toList());
         }
-        Booking saved = bookingService.save(body);
+        Booking saved = bookingService.save(employee, body);
         return new BookingResponseDTO(saved.getBookingId());
     }
 
@@ -54,7 +55,8 @@ public class BookingController {
     }
 
     @PutMapping("/{bookingId}")
-    public Booking findByIdAndUpdate(@PathVariable UUID bookingId, @RequestBody @Validated BookingDTO body, BindingResult validationResult) {
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    public Booking findByIdAndUpdate(@PathVariable UUID bookingId, @RequestBody @Validated BookingSearchDTO body, BindingResult validationResult) {
         if (validationResult.hasErrors()) {
             throw new ValidationException(validationResult.getFieldErrors().stream().map(DefaultMessageSourceResolvable::getDefaultMessage).toList());
         }
@@ -63,6 +65,7 @@ public class BookingController {
 
     @DeleteMapping("/{bookingId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
     public void findByIdAndDelete(@PathVariable UUID bookingId) {
         bookingService.findByIdAndDelete(bookingId);
     }

@@ -6,6 +6,7 @@ import andreasaderi.L5.entities.Trip;
 import andreasaderi.L5.exceptions.EmployeeAlreadyHasBookingForThisDateException;
 import andreasaderi.L5.exceptions.NotFoundException;
 import andreasaderi.L5.payloads.BookingDTO;
+import andreasaderi.L5.payloads.BookingSearchDTO;
 import andreasaderi.L5.repositories.BookingRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -36,11 +37,10 @@ public class BookingService {
         return bookingRepository.findAll(pageable);
     }
 
-    public Booking save(BookingDTO body) {
+    public Booking save(Employee employee, BookingDTO body) {
         Trip trip = tripService.findById(body.tripId());
-        Employee employee = employeeService.findById(body.employeeId());
-        if (bookingRepository.existsByEmployeeEmployeeIdAndTripDate(body.employeeId(), trip.getDate())) {
-            throw new EmployeeAlreadyHasBookingForThisDateException(body.employeeId(), trip.getDate());
+        if (bookingRepository.existsByEmployeeEmployeeIdAndTripDate(employee.getEmployeeId(), trip.getDate())) {
+            throw new EmployeeAlreadyHasBookingForThisDateException(employee.getEmployeeId(), trip.getDate());
         }
 
         return bookingRepository.save(new Booking(trip, employee, body.notes()));
@@ -51,7 +51,7 @@ public class BookingService {
         return bookingRepository.findById(bookingId).orElseThrow(() -> new NotFoundException(bookingId));
     }
 
-    public Booking findByIdAndUpdate(UUID bookingId, BookingDTO body) {
+    public Booking findByIdAndUpdate(UUID bookingId, BookingSearchDTO body) {
         Booking found = findById(bookingId);
         Trip trip = tripService.findById(body.tripId());
         Employee employee = employeeService.findById(body.employeeId());

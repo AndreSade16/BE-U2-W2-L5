@@ -5,6 +5,7 @@ import andreasaderi.L5.entities.Employee;
 import andreasaderi.L5.entities.Trip;
 import andreasaderi.L5.exceptions.EmployeeAlreadyHasBookingForThisDateException;
 import andreasaderi.L5.exceptions.NotFoundException;
+import andreasaderi.L5.exceptions.UnauthorizedException;
 import andreasaderi.L5.payloads.BookingDTO;
 import andreasaderi.L5.payloads.BookingSearchDTO;
 import andreasaderi.L5.repositories.BookingRepository;
@@ -82,6 +83,13 @@ public class BookingService {
         Pageable pageable = PageRequest.of(page, size);
 
         return bookingRepository.findByEmployeeEmployeeId(employeeId, pageable);
+    }
+
+    public void findByIdAndEmployeeIdAndDelete(UUID bookingId, UUID employeeId) {
+        Booking found = findById(bookingId);
+        if (employeeId.equals(found.getEmployee().getEmployeeId())) {
+            bookingRepository.delete(found);
+        } else throw new UnauthorizedException("You're not the owner of this booking. Access denied.");
     }
 
 }

@@ -70,4 +70,10 @@ public class BookingController {
         bookingService.findByIdAndDelete(bookingId);
     }
 
+    @DeleteMapping("/me/{bookingId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteOwnBooking(@PathVariable UUID bookingId, @AuthenticationPrincipal Employee employee) {
+        bookingService.findByIdAndEmployeeIdAndDelete(bookingId, employee.getEmployeeId());
+    }
+
 }

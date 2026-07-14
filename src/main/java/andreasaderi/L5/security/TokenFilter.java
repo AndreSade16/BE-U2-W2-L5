@@ -1,10 +1,15 @@
 package andreasaderi.L5.security;
 
+import andreasaderi.L5.entities.Employee;
 import andreasaderi.L5.exceptions.UnauthorizedException;
+import andreasaderi.L5.services.EmployeeService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -15,9 +20,11 @@ import java.io.IOException;
 public class TokenFilter extends OncePerRequestFilter {
 
     private final JWTTools jwtTools;
+    private final EmployeeService employeeService;
 
-    public TokenFilter(JWTTools jwtTools) {
+    public TokenFilter(JWTTools jwtTools, EmployeeService employeeService) {
         this.jwtTools = jwtTools;
+        this.employeeService = employeeService;
     }
 
     @Override
@@ -30,6 +37,13 @@ public class TokenFilter extends OncePerRequestFilter {
         String token = auth.replace("Bearer ", "");
 
         jwtTools.verifyToken(token);
+
+        Employee authenticated = employeeService.findById(jwtTools.getIdFromToken(token));
+
+        Authentication authentication = new UsernamePasswordAuthenticationToken(authenticated, null, authenticated.getAuthorities());
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
         filterChain.doFilter(request, response);
     }
 

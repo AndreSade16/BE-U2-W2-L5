@@ -9,6 +9,7 @@ import com.cloudinary.utils.ObjectUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -21,11 +22,13 @@ import java.util.UUID;
 public class EmployeeService {
 
     private final EmployeeRepository employeeRepository;
+    private final PasswordEncoder bcrypt;
     private final Cloudinary fileUploader;
 
-    public EmployeeService(EmployeeRepository employeeRepository, Cloudinary fileUploader) {
+    public EmployeeService(EmployeeRepository employeeRepository, Cloudinary fileUploader, PasswordEncoder bcrypt) {
         this.employeeRepository = employeeRepository;
         this.fileUploader = fileUploader;
+        this.bcrypt = bcrypt;
     }
 
     public Page<Employee> findAll(int page, int size) {
@@ -40,7 +43,7 @@ public class EmployeeService {
         if (employeeRepository.existsByEmail(body.email())) throw new EmailAlreadyInUseException(body.email());
         if (employeeRepository.existsByUsername(body.username()))
             throw new UsernameAlreadyInUseException(body.username());
-        Employee newEmployee = new Employee(body.username(), body.name(), body.surname(), body.email(), body.password());
+        Employee newEmployee = new Employee(body.username(), body.name(), body.surname(), body.email(), bcrypt.encode(body.password()));
         return employeeRepository.save(newEmployee);
     }
 

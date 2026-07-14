@@ -75,4 +75,13 @@ public class BookingService {
         bookingRepository.delete(found);
     }
 
+    public Page<Booking> findByEmployeeId(UUID employeeId, int page, int size) {
+        if (size <= 0) size = 10;
+        if (size > 30) size = 30;
+        if (page < 0) page = 0;
+        Pageable pageable = PageRequest.of(page, size);
+
+        return bookingRepository.findByEmployeeEmployeeId(employeeId, pageable);
+    }
+
 }

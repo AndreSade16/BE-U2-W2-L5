@@ -9,6 +9,7 @@ import andreasaderi.L5.services.TripService;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -32,6 +33,7 @@ public class TripController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
     public TripResponseDTO save(@RequestBody @Validated TripDTO body, BindingResult validationResult) {
         if (validationResult.hasErrors()) {
             throw new ValidationException(validationResult.getFieldErrors().stream().map(DefaultMessageSourceResolvable::getDefaultMessage).toList());
@@ -46,6 +48,7 @@ public class TripController {
     }
 
     @PutMapping("/{tripId}")
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
     public Trip findByIdAndUpdate(@PathVariable UUID tripId, @RequestBody @Validated TripUpdateDTO body, BindingResult validationResult) {
         if (validationResult.hasErrors())
             throw new ValidationException(validationResult.getFieldErrors().stream().map(DefaultMessageSourceResolvable::getDefaultMessage).toList());
@@ -54,6 +57,7 @@ public class TripController {
 
     @DeleteMapping("/{tripId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
     public void findByIdAndDelete(@PathVariable UUID tripId) {
         tripService.findByIdAndDelete(tripId);
     }

@@ -1,6 +1,7 @@
 package andreasaderi.L5.controllers;
 
 import andreasaderi.L5.entities.Booking;
+import andreasaderi.L5.entities.Employee;
 import andreasaderi.L5.exceptions.ValidationException;
 import andreasaderi.L5.payloads.BookingDTO;
 import andreasaderi.L5.payloads.BookingResponseDTO;
@@ -8,6 +9,8 @@ import andreasaderi.L5.services.BookingService;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -25,8 +28,14 @@ public class BookingController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
     public Page<Booking> findAll(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
         return bookingService.findAll(page, size);
+    }
+
+    @GetMapping("/me")
+    public Page<Booking> findOwnBookings(@AuthenticationPrincipal Employee employee, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+        return bookingService.findByEmployeeId(employee.getEmployeeId(), page, size);
     }
 
     @PostMapping

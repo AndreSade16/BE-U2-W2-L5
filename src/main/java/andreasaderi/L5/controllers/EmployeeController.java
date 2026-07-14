@@ -3,6 +3,7 @@ package andreasaderi.L5.controllers;
 import andreasaderi.L5.entities.Employee;
 import andreasaderi.L5.exceptions.ValidationException;
 import andreasaderi.L5.payloads.EmployeeDTO;
+import andreasaderi.L5.payloads.SetEmployeeRoleDTO;
 import andreasaderi.L5.services.EmployeeService;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.data.domain.Page;
@@ -68,6 +69,15 @@ public class EmployeeController {
     @GetMapping("/me")
     public Employee getOwnProfile(@AuthenticationPrincipal Employee employee) {
         return employeeService.findById(employee.getEmployeeId());
+    }
+
+    @PatchMapping("/{employeeId}/role")
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    public Employee setEmployeeRole(@PathVariable UUID employeeId, @RequestBody @Validated SetEmployeeRoleDTO body, BindingResult validationResult) {
+        if (validationResult.hasErrors()) {
+            throw new ValidationException(validationResult.getFieldErrors().stream().map(DefaultMessageSourceResolvable::getDefaultMessage).toList());
+        }
+        return employeeService.setEmployeeRole(employeeId, body);
     }
 
 }

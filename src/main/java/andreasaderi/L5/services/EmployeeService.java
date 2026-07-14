@@ -3,6 +3,7 @@ package andreasaderi.L5.services;
 import andreasaderi.L5.entities.Employee;
 import andreasaderi.L5.exceptions.*;
 import andreasaderi.L5.payloads.EmployeeDTO;
+import andreasaderi.L5.payloads.SetEmployeeRoleDTO;
 import andreasaderi.L5.repositories.EmployeeRepository;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
@@ -98,5 +99,11 @@ public class EmployeeService {
 
     public Employee findByEmail(String email) {
         return employeeRepository.findByEmail(email).orElseThrow(() -> new UnauthorizedException("Wrong email or password"));
+    }
+
+    public Employee setEmployeeRole(UUID employeeId, SetEmployeeRoleDTO body) {
+        Employee employee = findById(employeeId);
+        employee.setRole(body.role());
+        return employeeRepository.save(employee);
     }
 }
